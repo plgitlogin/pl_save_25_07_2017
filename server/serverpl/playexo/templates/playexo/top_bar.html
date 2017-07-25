@@ -1,0 +1,21 @@
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <img src="http://www.u-pem.fr/fileadmin/templates/template_web_040509/common/images/structures/UPEM_LOGO.png" height="44" width="88" /> 
+        <div class="navbar-header" style="margin-left: 16.3%">
+            <a class="navbar-brand" href="/gitload">Premier Langage</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right" style="margin-right: 15%">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <span class="glyphicon glyphicon-user"></span> 
+                    {% if request.user.get_username %}{{ request.user.get_username }}{% else %}Not-Login{% endif %}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#"><span class="glyphicon glyphicon-envelope"></span>&emsp;{{ user.email }}</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+

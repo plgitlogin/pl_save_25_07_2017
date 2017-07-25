@@ -1,0 +1,10 @@
+FROM debian
+
+RUN apt-get update
+RUN apt-get install -y python
+
+ADD exec.sh /root/exec.sh
+ADD text.sh /root/text.sh
+ADD python.sh /root/python.sh
+
+RUN chmod +x /root/exec.sh /root/text.sh /root/python.sh

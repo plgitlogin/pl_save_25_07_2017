@@ -1,0 +1,27 @@
+{% extends "playexo/default_nav.html" %}
+
+{% block tag %}
+    {% load markdown_deux_tags %}
+    {% load bootstrap3 %}
+    {% load static %}
+{% endblock %}
+
+
+{% block exo %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <div class="col-md-4 text-left"></div>
+            <div class="col-md-4 text-center"><h3>{% if 'title' %}{{ title }}{% endif %}</h3></div>
+            <div class="col-md-4 text-right">{% if 'author' %}{{ author }}{% endif %}</div>
+            <br>
+            <br>
+            <br>
+        </div>
+        
+        <div class="panel-body">
+            {% if "introduction" %}
+                    {{ introduction|markdown }}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

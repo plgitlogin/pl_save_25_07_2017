@@ -1,0 +1,57 @@
+
+<html>
+    <head>
+        
+        <!-- Header info -->
+        {% block head %}{% endblock %}
+        
+        <!-- Title -->
+        <title>{% block title %}UPEM - PL 2017/2018{% endblock %}</title>
+        
+        <!-- Load the tag library -->
+        {% load bootstrap3 %}
+        {% load static %}
+        {% block load %}{% endblock %}
+        
+        <!-- Load CSS and JavaScript -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+        {% bootstrap_css %}
+        {% block css %}{% endblock %}
+        <link rel="stylesheet" href="{% static 'playexo/css/exo_info.css' %}" />
+        <link rel="stylesheet" href="{% static 'playexo/css/pywims_exos.css' %}">
+        {% block header_script %}{% endblock %}
+    
+    </head>
+    
+    <body>
+        {% block topbar %}{% include "playexo/top_bar.html" %}{% endblock %}
+        {% block alert %}{% include "playexo/alert.html" %}{% endblock %}
+        
+        {% block content %}
+            <!-- State -->
+            {% block state %}
+            {% endblock %}
+            
+            
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-2">
+                    <!-- Navigation -->
+                    {% block navigation %}
+                    {% endblock %}
+                </div>
+                <div class="col-md-6">
+                    <!-- Exo -->
+                    {% block exo %}
+                    {% endblock %}
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        {% endblock %}
+        
+        {% block end_script %}{% endblock %}
+    </body>
+</html>

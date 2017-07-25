@@ -1,0 +1,151 @@
+
+
+{% extends "gitload/base.html" %}
+
+{% block css %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class=col-md-2></div>
+        <div class=col-md-8>
+        
+        <ul class="nav nav-tabs nav-justified">
+            <li><a href="/gitload/loaded_pltp">PLTP</a></li>
+            <li><a href="/gitload/loaded_pls">PLS</a></li>
+            <li><a href="/gitload/loaded_pl">PL</a></li>
+            <li class="active"><a href="/gitload/activity">Activité</a></li>
+        </ul>
+        <br>
+        <br>
+        
+        <!-- Form to add new activity -->
+         <form action="" method="POST">
+            {% csrf_token %}
+            <div class="panel panel-primary">
+                <div class="panel-heading"><span class="glyphicon glyphicon-file"></span>&emsp;Créer une nouvelle activité</div>
+                <div class="panel-body">
+                    <div class=row>
+                        <div class="col-sm-2" style="margin-top: 20px">
+                            <center>
+                                <button class="btn btn-info" type="submit">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>&emsp;Créer&emsp;
+                                </button>
+                            </center>
+                        </div>
+                        <div class="col-sm-4" style="margin-top: 20px">
+                            <div class="input-group">
+                                <span class="input-group-addon">Nom:</span>
+                                <input id="msg" type="text" class="form-control" name="activity_name" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="input">PLTP:</span>
+                            <select class="selectpicker" name="activity_pltp" title="Choisissez un PLTP" data-live-search="true" required>
+                                {% if pltps %}
+                                    {% for item in pltps %}
+                                        <option value="{{ item.sha1 }}">{{item.name}}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option disabled selected value>Aucun PLTP chargé</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <span class="input">Stratégie:</span>
+                            <select class="selectpicker" name="activity_strategy" title="Choisissez une Stratégie" data-live-search="true" required>
+                                {% if strategies %}
+                                    {% for item in strategies %}
+                                        <option value="{{ item.name }}">{{item.name}}</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option disabled selected value>Aucune Stratégie chargée</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <br>
+        
+        <div class="container">
+            <a class="btn btn-primary" href="/gitload/browse/"><span class="glyphicon glyphicon-arrow-left"></span>&emsp;Retour</a>
+            <h2>Activité(s):</h2>
+            <div class="row">
+                {% if activities %}       
+                    <table class="table table-hover table-condensed">
+                        <thead>
+                            <tr>
+                                <th><center>ID</center></th>
+                                <th><center>Nom</center></th>
+                                <th><center>PLTP</center></th>
+                                <th><center>Stratégie</center></th>
+                                <th><center>url</center></th>
+                                <th style="width: 10%"><center>Tester</center></th>
+                                <th style="width: 6%"><center>Supprimer</center></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in activities %}
+                                <tr>
+                                    <td><center>{{ item.id }}</center></td>
+                                    <td><center>{{ item.name }}</center></td>
+                                    <td><center>{{ item.pltp.name }}</center></td>
+                                    <td><center>{{ item.strategy.name }}</center></td>
+                                    <td><center><a>{{ domain }}/playexo/activity/lti/{{ item.name }}/{{ item.strategy.name }}/{{ item.pltp.sha1 }}</a></center></td>
+                                    <td><center><a target="_blank" class="btn btn-primary" href="/playexo/activity/test/{{ item.name }}/{{ item.strategy.name }}/{{ item.pltp.sha1 }}/">
+                                            <span class="glyphicon glyphicon-edit"></span> Tester
+                                        </center></a>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#delete{{item.id}}"/>
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                        <div id="delete{{item.id}}" class="modal fade" role="dialog">
+                                            <div class="modal-dialog modal-md">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                        <center><h4 class="modal-title">Êtes vous sûr de vouloir supprimer {{ item.name }}?</h4></center>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-sm-3">
+                                                                <form action="" method="POST">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-warning btn-block" name="activity_delete" value="{{ item.name}}">
+                                                                        <span class="glyphicon glyphicon-ok"></span>&emsp;<b>Oui</b>
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                            <div class="col-sm-6"></div>
+                                                            <div class="col-sm-3">
+                                                                <button type="button" class="btn btn-danger btn-block" data-dismiss="modal">
+                                                                    <span class="glyphicon glyphicon-remove"></span>&emsp;<b>Non</b>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="alert alert-danger">
+                        Aucune Activité actuellement créée
+                    </div>
+                {% endif %}
+            </div>
+            <a class="btn btn-primary" href="/gitload/browse/"><span class="glyphicon glyphicon-arrow-left"></span>&emsp;Retour</a>
+        </div>
+        
+        <div class=col-md-2></div>
+    </div>
+{% endblock %}

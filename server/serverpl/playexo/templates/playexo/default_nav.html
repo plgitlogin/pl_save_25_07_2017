@@ -1,0 +1,22 @@
+{% extends "playexo/default_state.html" %}
+
+{% load static %}
+
+{% block navigation %}
+    <div id="navigation" class="btn-group-vertical">
+        <!-- PLTP -->
+        <a href="/playexo/activity/?action=pltp" type="button" class="btn btn-default  btn-lg">{{ pltp_name }}</a>
+        <!-- Every PL -->
+        {% for item  in pl_list %}
+            {% if pl and pl.name == item.name %}
+                <a href="/playexo/activity/?action=pl&pl_sha1={{item.0.sha1}}" type="button" class="btn btn-{{ item.1 }} btn-lg active">
+                    {{ item.0.name }}
+                </a>
+            {% else %}
+                <a href="/playexo/activity/?action=pl&pl_sha1={{item.0.sha1}}" type="button" class="btn btn-{{ item.1 }} btn-lg">
+                    {{ item.0.name }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,15 @@
+*pyc
+__pycache__/
+serverpl/tmp/*
+serverpl/staticfiles/*
+serverpl/static/*
+staticfiles/*
+sandbox/env/*
+db.sql*
+*.json
+*.log
+migrations/*
+doc/
+*~
+.cache/
+.coverage

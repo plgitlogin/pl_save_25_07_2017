@@ -1,0 +1,223 @@
+{% extends "playexo/default_nav.html" %}
+
+{% block tag %}
+    {% load markdown_deux_tags %}
+    {% load bootstrap3 %}
+    {% load static %}
+{% endblock %}
+
+{% block header_script %}
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+        },
+        menuSettings: { inTabOrder : false }
+    //	displayAlign : "left",
+    //	displayIndent : "2em"
+    });
+    </script>
+    <script type="text/javascript"
+    src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    
+    <script>
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    }
+    function drop(ev, target) // target est l'id de la source du drop
+    {
+        ev.preventDefault();
+
+        if (!ev.target.getAttribute("ondrop")) return false;
+        // data est l'id de la cible du drop
+        var data=ev.dataTransfer.getData("text");
+        // Le drop
+        //console.log(target, data);
+        document.getElementById(target).appendChild(document.getElementById(data));
+        // Renseignement de la variable via un champ "input" caché, dont l'id est celle le la cible, préfacée par 'input_'
+        //var input=document.getElementById('input_'+data);
+        //if (target != undefined) input.value = target;
+        //if (target == undefined) input.value = '';
+        var input_ajax=document.getElementById('form_drg_'+data);
+        if (target != undefined) input_ajax.value = target;
+        if (target == undefined) input_ajax.value = '';
+    }
+    </script>
+{% endblock %}
+
+{% block exo %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <div class="col-md-4 text-left"></div>
+            <div class="col-md-4 text-center"><h3>{% if 'title'%}{{ title }}{% endif %}</h3></div>
+            <div class="col-md-4 text-right">{% if 'author' %}{{ author }}{% endif %}</div>
+            <br>
+            <br>
+            <br>
+        </div>
+        
+        <div class="panel-body">
+            {% block text %}
+                {{ text|markdown }}
+            {% endblock %}
+            
+            <br>
+            <br>
+            {% block feedback %}
+                <div id="feedback_success" class="alert alert-success feedback" style="display: None">
+                </div>
+                <div id="feedback_info" class="alert alert-info feedback" style="display: None">
+                </div>
+                <div id="feedback_danger" class="alert alert-danger feedback" style="display: None">
+                </div>
+            {% endblock %}
+            <br>
+            
+            {% csrf_token %}
+            {% block form %}{% endblock %}
+            <br>
+            <br>
+            <center>
+                <div class="btn-group">
+                    <button id="submit_button" class="btn btn-primary" value="Valider">Validation</button>
+                    <button class="btn btn-default" type="submit" formaction="/playexo/try/?action=reset/">Reset</button>
+                </div>
+            </center>
+        </div>
+    </div>
+{% endblock %}
+
+{% block end_script %}
+<!--  script executed after page is loaded -->
+<script>
+$( document ).ready(function(){
+  if(window.top != window.self) {
+    $('#home-link').remove();
+  }
+
+  $( "#submit_button" ).click(function() {
+    var inputs = getInputs();
+
+    var status = {requested_action: 'submit', inputs: inputs};
+    $.ajax({
+      type : "POST",
+      url : "/playexo/activity/",
+      data: JSON.stringify(status, null, '\t'),
+      contentType: 'application/json;charset=UTF-8',
+      success: function(returned_status) {
+        status = returned_status;
+        onReturn(status.success, status.feedback);
+      }
+    });
+  });
+});
+
+</script>
+
+
+<!-- Javascript of the standard Pywims exercise layout -->
+
+<script>
+(function ( $ ) {
+  $.fn.styling = function(type, style) {
+    var color = '';
+    var object = this;
+    if (style === 'wrong_answer') color = "LightPink";
+    if (style === 'good_answer') color = "LightGreen";
+    this.animate({width: 'toggle'},function(){
+      object.css("background-color", color)
+      object.animate({width: 'toggle'});
+      if (type != 'drg') object.attr('disabled', 'disabled');
+    });
+    return this;
+  };
+}( jQuery ));
+
+function paint(inputs) {
+if (inputs['txt'] != undefined)
+for(var i = 0; i < inputs['txt'].length; i++){
+  var input = inputs['txt'][i];
+  $( "#form_txt_"+input.id ).styling('txt', input.style);
+}
+
+if (inputs['sel'] != undefined)
+for(var i = 0; i < inputs['sel'].length; i++){
+  var input = inputs['sel'][i];
+  $( "#form_sel_"+input.id ).styling('sel', input.style);
+}
+if (inputs['drg'] != undefined)
+for(var i = 0; i < inputs['drg'].length; i++){
+  var input = inputs['drg'][i];
+  // to be painted, the drag element must be on a drop element
+  if ((input.value.slice(0,7) == 'origin_') || (input.value == '')) continue;
+  // in drag fields, the element to be painted is not the input element, which is hidden
+  // its id is simply "name", whereas the input's id is "form_drg_name"
+  $( "#"+input.id ).styling('drg', input.style);
+}
+}
+
+function getInputs(){
+    var inputs = {};
+    $( "[id^='form_']" ).each(function() {
+        var type = this.id.slice(5,8); // type of field, a 3 letter code, cf input tag defs
+        var id = this.id.slice(9); // name of the variable
+        var value = $(this).val();
+        if ($(this).is(':radio')) {
+            if($(this).is(':checked')) {
+                inputs[id]=value;
+            }
+        }
+        else if ($(this).is(':checkbox')) {
+            if($(this).is(':checked')) {
+                if (id in inputs) {
+                    inputs[id].push(value);
+                }
+                else {
+                    inputs[id] = [value]
+                }
+            }
+        }
+        else {
+            inputs[id]=value;
+        }
+    });
+    return inputs;
+}
+
+function onReturn(success, feedback) {
+    // Paint input fields
+    // paint(inputs);
+
+    // show feedback
+    $( "#feedback_success" ).hide();
+    $( "#feedback_danger" ).hide();
+    $('#navigation').load(document.URL +  ' #navigation');
+    if (success) {
+        $( "#feedback_success" ).html(feedback);
+        // typeset math in feedback before displaying it
+        $( "#feedback_success" ).toggle();
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,feedback_success]);
+        $(":animated").promise().done(function(){
+        // will be called when all the animations on the queue finish
+          $( "#feedback_success").css('animation', 'growIn 2s forwards');
+        });
+    }
+    else {
+        $( "#feedback_danger" ).html(feedback);
+        // typeset math in feedback before displaying it
+        $( "#feedback_danger" ).toggle();
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,feedback_danger]);
+        $(":animated").promise().done(function(){
+        // will be called when all the animations on the queue finish
+          $( "#feedback_danger").css('animation', 'growIn 2s forwards');
+        });
+    }
+}
+</script>
+{% endblock %}
